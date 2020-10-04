@@ -1,9 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
+  [SerializeField] InputMaster controls;
+
   [SerializeField] CharacterController controller;
   [SerializeField] Transform groundCheck;
 
@@ -15,10 +18,24 @@ public class PlayerMovement : MonoBehaviour
   [SerializeField] LayerMask groundMask;
 
   bool isGrounded;
-
+  Vector2 movement = new Vector2();
 
   Vector3 velocity;
 
+
+  private void OnEnable()
+  {
+    if (controls == null)
+    {
+      controls = new InputMaster();
+    }
+    controls.Enable();
+  }
+
+  private void OnDisable()
+  {
+    controls.Disable();
+  }
 
   void Update()
   {
@@ -28,21 +45,34 @@ public class PlayerMovement : MonoBehaviour
       velocity.y = -1f;
     }
 
-    float x = Input.GetAxis("Horizontal");
-    float z = Input.GetAxis("Vertical");
+    // float x = Input.GetAxis("Horizontal");
+    // float z = Input.GetAxis("Vertical");
 
-    Vector3 move = transform.right * x + transform.forward * z;
+    // Vector3 move = transform.right * x + transform.forward * z;
 
-    controller.Move(move * speed * Time.deltaTime);
+    // move = move * speed * Time.deltaTime;
+    // controls.Player.Movement.performed += context => movement = context.ReadValue<Vector2>();
+    controls.Player.MovementHorizontal.performed += context => movement.x = context.ReadValue<float>();
+    controls.Player.MovementVertical.performed += context => movement.y = context.ReadValue<float>();
 
-    if (Input.GetButtonDown("Jump"))
+
+
+    Vector3 move = transform.right * movement.x + transform.forward * movement.y;
+
+    move = move * speed * Time.deltaTime;
+
+    controller.Move(move);
+
+    if (controls.Player.Jump.triggered)
     {
       velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
     }
 
+
     velocity.y += gravity * Time.deltaTime;
 
-    controller.Move(velocity * Time.deltaTime);
+
+    controller.Move(move * Time.deltaTime);
 
 
   }
