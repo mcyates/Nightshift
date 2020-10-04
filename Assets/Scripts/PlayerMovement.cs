@@ -51,19 +51,17 @@ public class PlayerMovement : MonoBehaviour
     // Vector3 move = transform.right * x + transform.forward * z;
 
     // move = move * speed * Time.deltaTime;
+    // controls.Player.Movement.performed += context => movement = context.ReadValue<Vector2>();
+    controls.Player.MovementHorizontal.performed += context => movement.x = context.ReadValue<float>();
+    controls.Player.MovementVertical.performed += context => movement.y = context.ReadValue<float>();
 
-    controls.Player.Movement.performed += context => movement = context.ReadValue<Vector2>();
+
 
     Vector3 move = transform.right * movement.x + transform.forward * movement.y;
 
     move = move * speed * Time.deltaTime;
 
     controller.Move(move);
-
-    // if (Input.GetButtonDown("Jump"))
-    // {
-
-    // }
 
     if (controls.Player.Jump.triggered)
     {
