@@ -57,6 +57,14 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""expectedControlType"": ""Axis"",
                     ""processors"": """",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""Dash"",
+                    ""type"": ""Button"",
+                    ""id"": ""6a20cfa8-dece-44c4-92e2-f9f41271f896"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -191,6 +199,17 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""action"": ""MovementVertical"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""6bde30bf-bf75-4ead-8418-333dbf1ac4bc"",
+                    ""path"": ""<Keyboard>/leftShift"",
+                    ""interactions"": ""Tap(duration=0.5),Hold(duration=0.7)"",
+                    ""processors"": """",
+                    ""groups"": ""MouseandKeyboard"",
+                    ""action"": ""Dash"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -259,6 +278,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
         m_Player_Menu = m_Player.FindAction("Menu", throwIfNotFound: true);
         m_Player_MovementHorizontal = m_Player.FindAction("MovementHorizontal", throwIfNotFound: true);
         m_Player_MovementVertical = m_Player.FindAction("MovementVertical", throwIfNotFound: true);
+        m_Player_Dash = m_Player.FindAction("Dash", throwIfNotFound: true);
         // Menu
         m_Menu = asset.FindActionMap("Menu", throwIfNotFound: true);
         m_Menu_Newaction = m_Menu.FindAction("New action", throwIfNotFound: true);
@@ -316,6 +336,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
     private readonly InputAction m_Player_Menu;
     private readonly InputAction m_Player_MovementHorizontal;
     private readonly InputAction m_Player_MovementVertical;
+    private readonly InputAction m_Player_Dash;
     public struct PlayerActions
     {
         private @InputMaster m_Wrapper;
@@ -325,6 +346,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
         public InputAction @Menu => m_Wrapper.m_Player_Menu;
         public InputAction @MovementHorizontal => m_Wrapper.m_Player_MovementHorizontal;
         public InputAction @MovementVertical => m_Wrapper.m_Player_MovementVertical;
+        public InputAction @Dash => m_Wrapper.m_Player_Dash;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -349,6 +371,9 @@ public class @InputMaster : IInputActionCollection, IDisposable
                 @MovementVertical.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMovementVertical;
                 @MovementVertical.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMovementVertical;
                 @MovementVertical.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMovementVertical;
+                @Dash.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnDash;
+                @Dash.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnDash;
+                @Dash.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnDash;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -368,6 +393,9 @@ public class @InputMaster : IInputActionCollection, IDisposable
                 @MovementVertical.started += instance.OnMovementVertical;
                 @MovementVertical.performed += instance.OnMovementVertical;
                 @MovementVertical.canceled += instance.OnMovementVertical;
+                @Dash.started += instance.OnDash;
+                @Dash.performed += instance.OnDash;
+                @Dash.canceled += instance.OnDash;
             }
         }
     }
@@ -430,6 +458,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
         void OnMenu(InputAction.CallbackContext context);
         void OnMovementHorizontal(InputAction.CallbackContext context);
         void OnMovementVertical(InputAction.CallbackContext context);
+        void OnDash(InputAction.CallbackContext context);
     }
     public interface IMenuActions
     {

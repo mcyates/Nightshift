@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Interactions;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -21,6 +22,7 @@ public class PlayerMovement : MonoBehaviour
   Vector2 movement = new Vector2();
 
   Vector3 velocity;
+  Vector3 drag = new Vector3(0.2f, 0.2f, 0.2f);
 
 
   private void OnEnable()
@@ -45,16 +47,20 @@ public class PlayerMovement : MonoBehaviour
       velocity.y = -1f;
     }
 
-    // float x = Input.GetAxis("Horizontal");
-    // float z = Input.GetAxis("Vertical");
-
-    // Vector3 move = transform.right * x + transform.forward * z;
-
-    // move = move * speed * Time.deltaTime;
-    // controls.Player.Movement.performed += context => movement = context.ReadValue<Vector2>();
     controls.Player.MovementHorizontal.performed += context => movement.x = context.ReadValue<float>();
     controls.Player.MovementVertical.performed += context => movement.y = context.ReadValue<float>();
 
+    controls.Player.Dash.performed += context =>
+    {
+      if (context.interaction is TapInteraction)
+      {
+        // Dash();
+      }
+      else if (context.interaction is HoldInteraction)
+      {
+        // Sprint();
+      }
+    };
 
 
     Vector3 move = transform.right * movement.x + transform.forward * movement.y;
@@ -62,6 +68,7 @@ public class PlayerMovement : MonoBehaviour
     move = move * speed * Time.deltaTime;
 
     controller.Move(move);
+
 
     if (controls.Player.Jump.triggered)
     {
@@ -71,9 +78,9 @@ public class PlayerMovement : MonoBehaviour
 
     velocity.y += gravity * Time.deltaTime;
 
+    move += velocity;
 
     controller.Move(move * Time.deltaTime);
-
 
   }
 }
