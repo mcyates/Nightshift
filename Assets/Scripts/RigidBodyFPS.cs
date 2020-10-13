@@ -16,12 +16,12 @@ public class RigidBodyFPS : MonoBehaviour
   Vector2 movement = new Vector2();
   Vector3 movementVector = new Vector3();
 
-  float moveSpeed = 5f;
+  float moveSpeed = 7f;
   float jumpHeight = 1.5f;
 
   float groundDistance = 0.1f;
 
-  bool isGrounded;
+  bool isGrounded = true;
 
 
   private void OnEnable()
@@ -51,11 +51,6 @@ public class RigidBodyFPS : MonoBehaviour
     ProcessMovement();
   }
 
-  private void CheckGround()
-  {
-    isGrounded = Physics.CheckSphere(transform.position, groundDistance, groundMask);
-  }
-
   private void ProcessInput()
   {
     controls.Player.MovementVertical.performed += context => movement.x = context.ReadValue<float>() * moveSpeed;
@@ -71,9 +66,14 @@ public class RigidBodyFPS : MonoBehaviour
     movementVector = (transform.forward * movement.x) + (transform.right * movement.y) + (transform.up * player.velocity.y);
     // player.AddForce(movementVector, ForceMode.VelocityChange);
 
-    if (controls.Player.Jump.triggered && isGrounded)
-    {
 
+    if (isGrounded && movementVector.y < 0)
+    {
+      movementVector.y = -1f;
+    }
+
+    if (controls.Player.Jump.triggered && isGrounded == true)
+    {
       movementVector.y = Jump();
 
     }
@@ -84,6 +84,24 @@ public class RigidBodyFPS : MonoBehaviour
 
   private float Jump()
   {
+    // isGrounded = false;
     return Mathf.Sqrt(jumpHeight * -2f * -9.81f);
+  }
+
+
+  private void OnCollisionEnter(Collision collision)
+  {
+    if (collision.gameObject.layer == 0)
+    {
+      isGrounded = true;
+    }
+  }
+
+  private void OnCollisionExit(Collision collision)
+  {
+    if (collision.gameObject.layer == 0)
+    {
+      isGrounded = false;
+    }
   }
 }
