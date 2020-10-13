@@ -13,6 +13,7 @@ public class RigidBodyFPS : MonoBehaviour
   float moveSide;
   Vector2 movement = new Vector2();
   Rigidbody player;
+  Vector3 movementVector = new Vector3();
 
   private void OnEnable()
   {
@@ -43,8 +44,8 @@ public class RigidBodyFPS : MonoBehaviour
 
   private void ProcessInput()
   {
-    controls.Player.MovementHorizontal.performed += context => movement.x = context.ReadValue<float>();
-    controls.Player.MovementVertical.performed += context => movement.y = context.ReadValue<float>();
+    controls.Player.MovementVertical.performed += context => movement.x = context.ReadValue<float>();
+    controls.Player.MovementHorizontal.performed += context => movement.y = context.ReadValue<float>();
 
 
   }
@@ -52,9 +53,9 @@ public class RigidBodyFPS : MonoBehaviour
 
   private void ProcessMovement()
   {
-    // player.AddForce()
-    Vector3 intendedMovement = new Vector3(0, 0, 0);
-    intendedMovement = (transform.forward * movement.x) + (transform.right * movement.y) + (transform.up * player.velocity.y);
-    player.velocity = intendedMovement;
+    movementVector = (transform.forward * movement.x) + (transform.right * movement.y) + (transform.up * player.velocity.y);
+    // player.AddForce(movementVector, ForceMode.VelocityChange);
+
+    player.velocity = movementVector;
   }
 }
