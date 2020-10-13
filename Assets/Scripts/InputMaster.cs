@@ -1,4 +1,4 @@
-// GENERATED AUTOMATICALLY FROM 'Assets/InputMaster.inputactions'
+// GENERATED AUTOMATICALLY FROM 'Assets/Input/InputMaster.inputactions'
 
 using System;
 using System.Collections;
@@ -204,7 +204,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""name"": """",
                     ""id"": ""6bde30bf-bf75-4ead-8418-333dbf1ac4bc"",
                     ""path"": ""<Keyboard>/leftShift"",
-                    ""interactions"": ""Tap(duration=0.5),Hold(duration=0.7)"",
+                    ""interactions"": ""Press(behavior=2)"",
                     ""processors"": """",
                     ""groups"": ""MouseandKeyboard"",
                     ""action"": ""Dash"",

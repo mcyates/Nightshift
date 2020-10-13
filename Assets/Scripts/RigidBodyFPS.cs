@@ -9,17 +9,18 @@ public class RigidBodyFPS : MonoBehaviour
 {
 
   [SerializeField] InputMaster controls;
-  [SerializeField] LayerMask groundMask;
   Rigidbody player;
 
 
   Vector2 movement = new Vector2();
   Vector3 movementVector = new Vector3();
 
-  float moveSpeed = 7f;
-  float jumpHeight = 1.5f;
+  [SerializeField] float moveSpeed = 7f;
+  float jumpHeight = 2f;
+  float speedBoost = 2f;
 
-  float groundDistance = 0.1f;
+  bool isSprinting = false;
+
 
   bool isGrounded = true;
 
@@ -47,16 +48,19 @@ public class RigidBodyFPS : MonoBehaviour
   // Update is called once per frame
   void Update()
   {
-    ProcessInput();
+    ProcessInputAxis();
     ProcessMovement();
   }
 
-  private void ProcessInput()
+  private void ProcessInputAxis()
   {
+    // if (controls.Player.Dash.triggered)
+    // {
+    //   isSprinting = !isSprinting;
+    // }
+
     controls.Player.MovementVertical.performed += context => movement.x = context.ReadValue<float>() * moveSpeed;
     controls.Player.MovementHorizontal.performed += context => movement.y = context.ReadValue<float>() * moveSpeed;
-
-
   }
 
 
@@ -64,7 +68,6 @@ public class RigidBodyFPS : MonoBehaviour
   {
 
     movementVector = (transform.forward * movement.x) + (transform.right * movement.y) + (transform.up * player.velocity.y);
-    // player.AddForce(movementVector, ForceMode.VelocityChange);
 
 
     if (isGrounded && movementVector.y < 0)
@@ -74,8 +77,18 @@ public class RigidBodyFPS : MonoBehaviour
 
     if (controls.Player.Jump.triggered && isGrounded == true)
     {
-      movementVector.y = Jump();
+      // movementVector.y = Jump();
+      player.AddForce(transform.up * Jump(), ForceMode.VelocityChange);
 
+    }
+
+    if (isSprinting == true)
+    {
+      moveSpeed = moveSpeed * speedBoost;
+    }
+    else
+    {
+      moveSpeed = 7f;
     }
 
 
