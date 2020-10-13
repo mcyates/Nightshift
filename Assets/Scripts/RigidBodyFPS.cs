@@ -9,11 +9,20 @@ public class RigidBodyFPS : MonoBehaviour
 {
 
   [SerializeField] InputMaster controls;
-  float moveForward;
-  float moveSide;
-  Vector2 movement = new Vector2();
+  [SerializeField] LayerMask groundMask;
   Rigidbody player;
+
+
+  Vector2 movement = new Vector2();
   Vector3 movementVector = new Vector3();
+
+  float moveSpeed = 5f;
+  float jumpHeight = 1.5f;
+
+  float groundDistance = 0.1f;
+
+  bool isGrounded;
+
 
   private void OnEnable()
   {
@@ -42,10 +51,15 @@ public class RigidBodyFPS : MonoBehaviour
     ProcessMovement();
   }
 
+  private void CheckGround()
+  {
+    isGrounded = Physics.CheckSphere(transform.position, groundDistance, groundMask);
+  }
+
   private void ProcessInput()
   {
-    controls.Player.MovementVertical.performed += context => movement.x = context.ReadValue<float>();
-    controls.Player.MovementHorizontal.performed += context => movement.y = context.ReadValue<float>();
+    controls.Player.MovementVertical.performed += context => movement.x = context.ReadValue<float>() * moveSpeed;
+    controls.Player.MovementHorizontal.performed += context => movement.y = context.ReadValue<float>() * moveSpeed;
 
 
   }
@@ -53,9 +67,23 @@ public class RigidBodyFPS : MonoBehaviour
 
   private void ProcessMovement()
   {
+
     movementVector = (transform.forward * movement.x) + (transform.right * movement.y) + (transform.up * player.velocity.y);
     // player.AddForce(movementVector, ForceMode.VelocityChange);
 
+    if (controls.Player.Jump.triggered && isGrounded)
+    {
+
+      movementVector.y = Jump();
+
+    }
+
+
     player.velocity = movementVector;
+  }
+
+  private float Jump()
+  {
+    return Mathf.Sqrt(jumpHeight * -2f * -9.81f);
   }
 }
