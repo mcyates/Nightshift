@@ -9,10 +9,21 @@ public class RigidBodyFPS : MonoBehaviour
 {
 
   [SerializeField] InputMaster controls;
-  float moveForward;
-  float moveSide;
-  Vector2 movement = new Vector2();
   Rigidbody player;
+
+
+  Vector2 movement = new Vector2();
+  Vector3 movementVector = new Vector3();
+
+  [SerializeField] float moveSpeed = 7f;
+  float jumpHeight = 2f;
+  float speedBoost = 2f;
+
+  bool isSprinting = false;
+
+
+  bool isGrounded = true;
+
 
   private void OnEnable()
   {
@@ -37,24 +48,73 @@ public class RigidBodyFPS : MonoBehaviour
   // Update is called once per frame
   void Update()
   {
-    ProcessInput();
+    ProcessInputAxis();
     ProcessMovement();
   }
 
-  private void ProcessInput()
+  private void ProcessInputAxis()
   {
-    controls.Player.MovementHorizontal.performed += context => movement.x = context.ReadValue<float>();
-    controls.Player.MovementVertical.performed += context => movement.y = context.ReadValue<float>();
+    // if (controls.Player.Dash.triggered)
+    // {
+    //   isSprinting = !isSprinting;
+    // }
 
-
+    controls.Player.MovementVertical.performed += context => movement.x = context.ReadValue<float>() * moveSpeed;
+    controls.Player.MovementHorizontal.performed += context => movement.y = context.ReadValue<float>() * moveSpeed;
   }
 
 
   private void ProcessMovement()
   {
-    // player.AddForce()
-    Vector3 intendedMovement = new Vector3(0, 0, 0);
-    intendedMovement = (transform.forward * movement.x) + (transform.right * movement.y) + (transform.up * player.velocity.y);
-    player.velocity = intendedMovement;
+
+    movementVector = (transform.forward * movement.x) + (transform.right * movement.y) + (transform.up * player.velocity.y);
+
+
+    if (isGrounded && movementVector.y < 0)
+    {
+      movementVector.y = -1f;
+    }
+
+    if (controls.Player.Jump.triggered && isGrounded == true)
+    {
+      // movementVector.y = Jump();
+      player.AddForce(transform.up * Jump(), ForceMode.VelocityChange);
+
+    }
+
+    if (isSprinting == true)
+    {
+      moveSpeed = moveSpeed * speedBoost;
+    }
+    else
+    {
+      moveSpeed = 7f;
+    }
+
+
+    player.velocity = movementVector;
+  }
+
+  private float Jump()
+  {
+    // isGrounded = false;
+    return Mathf.Sqrt(jumpHeight * -2f * -9.81f);
+  }
+
+
+  private void OnCollisionEnter(Collision collision)
+  {
+    if (collision.gameObject.layer == 0)
+    {
+      isGrounded = true;
+    }
+  }
+
+  private void OnCollisionExit(Collision collision)
+  {
+    if (collision.gameObject.layer == 0)
+    {
+      isGrounded = false;
+    }
   }
 }
