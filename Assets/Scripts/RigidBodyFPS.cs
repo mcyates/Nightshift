@@ -19,8 +19,7 @@ public class RigidBodyFPS : MonoBehaviour
   float jumpHeight = 2f;
   float speedBoost = 2f;
 
-  bool isSprinting = false;
-
+  public bool isSprinting = false;
 
   public bool isGrounded = true;
 
@@ -32,6 +31,9 @@ public class RigidBodyFPS : MonoBehaviour
       controls = new InputMaster();
     }
     controls.Enable();
+
+
+
   }
 
   private void OnDisable()
@@ -48,16 +50,25 @@ public class RigidBodyFPS : MonoBehaviour
   // Update is called once per frame
   void Update()
   {
+    // ProcessMovement();
+  }
+
+  void FixedUpdate()
+  {
     ProcessMovement();
+
   }
 
   private void ProcessMovement()
   {
+    controls.Player.Dash.performed += ctx => isSprinting = true;
+    controls.Player.Dash.canceled += ctx => isSprinting = false;
 
-    if (controls.Player.Dash.triggered)
-    {
-      isSprinting = !isSprinting;
-    }
+    // if (controls.Player.Dash.triggered)
+    // {
+
+    //   isSprinting = !isSprinting;
+    // }
 
     controls.Player.MovementVertical.performed += context => movement.x = context.ReadValue<float>();
     controls.Player.MovementHorizontal.performed += context => movement.y = context.ReadValue<float>();
