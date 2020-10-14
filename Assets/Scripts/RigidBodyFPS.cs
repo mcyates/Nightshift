@@ -83,10 +83,11 @@ public class RigidBodyFPS : MonoBehaviour
     if (controls.Player.Jump.triggered && isGrounded == true)
     {
       // movementVector.y = Jump();
-      player.AddForce(transform.up * Jump(), ForceMode.VelocityChange);
+      player.AddForce(transform.up * Jump(), ForceMode.Impulse);
 
     }
 
+    Vector3.ClampMagnitude(movementVector, 20f);
     player.velocity = movementVector;
   }
 
@@ -100,17 +101,32 @@ public class RigidBodyFPS : MonoBehaviour
 
   private void OnCollisionEnter(Collision collision)
   {
+    Vector3 normal = collision.contacts[0].normal;
+
     if (collision.gameObject.layer == 0)
     {
-      isGrounded = true;
+
+      if (normal.y > 0)
+      {
+        isGrounded = true;
+      }
     }
   }
 
   private void OnCollisionExit(Collision collision)
   {
-    if (collision.gameObject.layer == 0)
+    Vector3 normal;
+    if (collision.contacts.Length > 0)
     {
-      isGrounded = false;
+      normal = collision.contacts[0].normal;
+
+      if (collision.gameObject.layer == 0)
+      {
+        if (normal.y > 0)
+        {
+          isGrounded = false;
+        }
+      }
     }
   }
 }
