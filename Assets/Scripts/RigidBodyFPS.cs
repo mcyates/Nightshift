@@ -12,8 +12,8 @@ public class RigidBodyFPS : MonoBehaviour
   Rigidbody player;
 
 
-  Vector2 movement = new Vector2();
-  Vector3 movementVector = new Vector3();
+  public Vector2 movement = new Vector2();
+  public Vector3 movementVector = new Vector3();
 
   [SerializeField] float moveSpeed = 7f;
   float jumpHeight = 2f;
@@ -22,7 +22,7 @@ public class RigidBodyFPS : MonoBehaviour
   bool isSprinting = false;
 
 
-  bool isGrounded = true;
+  public bool isGrounded = true;
 
 
   private void OnEnable()
@@ -48,26 +48,31 @@ public class RigidBodyFPS : MonoBehaviour
   // Update is called once per frame
   void Update()
   {
-    ProcessInputAxis();
     ProcessMovement();
   }
-
-  private void ProcessInputAxis()
-  {
-    // if (controls.Player.Dash.triggered)
-    // {
-    //   isSprinting = !isSprinting;
-    // }
-
-    controls.Player.MovementVertical.performed += context => movement.x = context.ReadValue<float>() * moveSpeed;
-    controls.Player.MovementHorizontal.performed += context => movement.y = context.ReadValue<float>() * moveSpeed;
-  }
-
 
   private void ProcessMovement()
   {
 
-    movementVector = (transform.forward * movement.x) + (transform.right * movement.y) + (transform.up * player.velocity.y);
+    if (controls.Player.Dash.triggered)
+    {
+      isSprinting = !isSprinting;
+    }
+
+    controls.Player.MovementVertical.performed += context => movement.x = context.ReadValue<float>();
+    controls.Player.MovementHorizontal.performed += context => movement.y = context.ReadValue<float>();
+
+    if (isSprinting == true)
+    {
+      moveSpeed = Mathf.Clamp(moveSpeed * speedBoost, 0f, 15f);
+    }
+    else
+    {
+      moveSpeed = 7f;
+    }
+
+
+    movementVector = (transform.forward * movement.x * moveSpeed) + (transform.right * movement.y * moveSpeed) + (transform.up * player.velocity.y);
 
 
     if (isGrounded && movementVector.y < 0)
@@ -82,18 +87,9 @@ public class RigidBodyFPS : MonoBehaviour
 
     }
 
-    if (isSprinting == true)
-    {
-      moveSpeed = moveSpeed * speedBoost;
-    }
-    else
-    {
-      moveSpeed = 7f;
-    }
-
-
     player.velocity = movementVector;
   }
+
 
   private float Jump()
   {
