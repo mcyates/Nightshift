@@ -16,12 +16,18 @@ public class RigidBodyFPS : MonoBehaviour
   public Vector3 movementVector = new Vector3();
 
   [SerializeField] float moveSpeed = 7f;
-  float jumpHeight = 2f;
   float speedBoost = 2f;
 
   public bool isSprinting = false;
 
   public bool isGrounded = true;
+
+  #region Jumping
+  [SerializeField] int maxJumpsAllowed = 2;
+  int jumpsLeft;
+  float jumpHeight = 2f;
+
+  #endregion
 
 
   private void OnEnable()
@@ -45,9 +51,10 @@ public class RigidBodyFPS : MonoBehaviour
   {
     player = GetComponent<Rigidbody>();
 
+    jumpsLeft = maxJumpsAllowed;
+
   }
 
-  // Update is called once per frame
   void Update()
   {
     // ProcessMovement();
@@ -61,17 +68,11 @@ public class RigidBodyFPS : MonoBehaviour
 
   private void ProcessMovement()
   {
-    controls.Player.Dash.performed += ctx => isSprinting = true;
-    controls.Player.Dash.canceled += ctx => isSprinting = false;
-
-    // if (controls.Player.Dash.triggered)
-    // {
-
-    //   isSprinting = !isSprinting;
-    // }
-
     controls.Player.MovementVertical.performed += context => movement.x = context.ReadValue<float>();
     controls.Player.MovementHorizontal.performed += context => movement.y = context.ReadValue<float>();
+
+    controls.Player.Dash.performed += ctx => isSprinting = true;
+    controls.Player.Dash.canceled += ctx => isSprinting = false;
 
     if (isSprinting == true)
     {
@@ -86,16 +87,9 @@ public class RigidBodyFPS : MonoBehaviour
     movementVector = (transform.forward * movement.x * moveSpeed) + (transform.right * movement.y * moveSpeed) + (transform.up * player.velocity.y);
 
 
-    if (isGrounded && movementVector.y < 0)
+    if (controls.Player.Jump.triggered)
     {
-      movementVector.y = -1f;
-    }
-
-    if (controls.Player.Jump.triggered && isGrounded == true)
-    {
-      // movementVector.y = Jump();
-      player.AddForce(transform.up * Jump(), ForceMode.Impulse);
-
+      Jump();
     }
 
     Vector3.ClampMagnitude(movementVector, 20f);
@@ -103,10 +97,21 @@ public class RigidBodyFPS : MonoBehaviour
   }
 
 
-  private float Jump()
+  private void Jump()
   {
-    // isGrounded = false;
-    return Mathf.Sqrt(jumpHeight * -2f * -9.81f);
+    float jumpFloat = Mathf.Sqrt(jumpHeight * -2f * -9.81f);
+    if (isGrounded == true)
+    {
+      player.AddForce(transform.up * jumpFloat, ForceMode.Impulse);
+    }
+
+    // double jump reset jumpsleft in OnCollisionEnter
+    if (jumpsLeft > 0 && isGrounded == false)
+    {
+      player.AddForce(transform.up * jumpFloat, ForceMode.Impulse);
+
+    }
+    jumpsLeft--;
   }
 
 
@@ -120,6 +125,7 @@ public class RigidBodyFPS : MonoBehaviour
       if (normal.y > 0)
       {
         isGrounded = true;
+        jumpsLeft = maxJumpsAllowed;
       }
     }
   }
