@@ -10,6 +10,10 @@ public class RigidBodyFPS : MonoBehaviour
 
   [SerializeField] InputMaster controls;
   Rigidbody player;
+  CapsuleCollider collider;
+
+  float standingHeight;
+  float crouchedHeight;
 
 
   public Vector2 movement = new Vector2();
@@ -19,14 +23,15 @@ public class RigidBodyFPS : MonoBehaviour
   float speedBoost = 2f;
 
   public bool isSprinting = false;
-
+  public bool toggleCrouch = false;
+  bool isCrouching = false;
   public bool isGrounded = true;
+
 
   #region Jumping
   [SerializeField] int maxJumpsAllowed = 2;
   int jumpsLeft;
   float jumpHeight = 2f;
-
   #endregion
 
 
@@ -50,7 +55,10 @@ public class RigidBodyFPS : MonoBehaviour
   void Start()
   {
     player = GetComponent<Rigidbody>();
+    collider = GetComponent<CapsuleCollider>();
 
+    standingHeight = collider.height;
+    crouchedHeight = standingHeight / 2;
     jumpsLeft = maxJumpsAllowed;
 
   }
@@ -70,17 +78,35 @@ public class RigidBodyFPS : MonoBehaviour
   {
     controls.Player.MovementVertical.performed += context => movement.x = context.ReadValue<float>();
     controls.Player.MovementHorizontal.performed += context => movement.y = context.ReadValue<float>();
+    if (toggleCrouch)
+    {
+      controls.Player.Crouch.performed += ctx => isCrouching = !isCrouching;
+    }
+    else
+    {
+      controls.Player.Crouch.performed += ctx => isCrouching = true;
+      controls.Player.Crouch.canceled += ctx => isCrouching = false;
+    }
 
     controls.Player.Dash.performed += ctx => isSprinting = true;
     controls.Player.Dash.canceled += ctx => isSprinting = false;
 
-    if (isSprinting == true)
+    if (isSprinting == true && isGrounded)
     {
       moveSpeed = Mathf.Clamp(moveSpeed * speedBoost, 0f, 15f);
     }
     else
     {
       moveSpeed = 7f;
+    }
+
+    if (isCrouching)
+    {
+      Crouch();
+    }
+    else
+    {
+      StandUp();
     }
 
 
@@ -96,21 +122,35 @@ public class RigidBodyFPS : MonoBehaviour
     player.velocity = movementVector;
   }
 
+  private void Crouch()
+  {
+    collider.height = crouchedHeight;
+  }
+
+  private void StandUp()
+  {
+    collider.height = standingHeight;
+  }
 
   private void Jump()
   {
     float jumpFloat = Mathf.Sqrt(jumpHeight * -2f * -9.81f);
+
     if (isGrounded == true)
     {
       player.AddForce(transform.up * jumpFloat, ForceMode.Impulse);
+      print(1);
     }
 
     // double jump reset jumpsleft in OnCollisionEnter
-    if (jumpsLeft > 0 && isGrounded == false)
+    else if (jumpsLeft > 0)
     {
-      player.AddForce(transform.up * jumpFloat, ForceMode.Impulse);
-
+      if (isGrounded == false)
+      {
+        player.AddForce(transform.up * jumpFloat, ForceMode.Impulse);
+      }
     }
+
     jumpsLeft--;
   }
 
@@ -139,11 +179,11 @@ public class RigidBodyFPS : MonoBehaviour
 
       if (collision.gameObject.layer == 0)
       {
-        if (normal.y > 0)
+        if (normal.y < 0)
         {
-          isGrounded = false;
         }
       }
     }
+    isGrounded = false;
   }
 }
