@@ -235,23 +235,23 @@
             "id": "b24c44aa-dcda-4ecc-83b2-32bc722249fc",
             "actions": [
                 {
-                    "name": "New action",
+                    "name": "Menu",
                     "type": "Button",
-                    "id": "df66a086-cfcf-480b-a897-b0b78f920f2a",
+                    "id": "0789f4c0-c86d-4d58-aeff-402f86d79472",
                     "expectedControlType": "Button",
                     "processors": "",
-                    "interactions": ""
+                    "interactions": "Press"
                 }
             ],
             "bindings": [
                 {
                     "name": "",
-                    "id": "f87b251e-045f-4427-a07e-66914870eea1",
-                    "path": "",
+                    "id": "33fcb9b0-8c4f-41a8-a03c-42bb419cce69",
+                    "path": "<Keyboard>/escape",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
-                    "action": "New action",
+                    "groups": "MouseandKeyboard",
+                    "action": "Menu",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

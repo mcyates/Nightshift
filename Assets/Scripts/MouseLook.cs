@@ -12,6 +12,8 @@ public class MouseLook : MonoBehaviour
   float xRotation = 0f;
   Vector2 look = new Vector2();
 
+  public bool inMenu = false;
+
   private void OnEnable()
   {
 
@@ -36,7 +38,28 @@ public class MouseLook : MonoBehaviour
   // Update is called once per frame
   void Update()
   {
+    if (inMenu == false)
+    {
+      ProcessMouseLook();
+    }
 
+    if (controls.Menu.Menu.triggered)
+    {
+      if (inMenu == false)
+      {
+        Cursor.lockState = CursorLockMode.Confined;
+        inMenu = true;
+      }
+      else if (inMenu == true)
+      {
+        Cursor.lockState = CursorLockMode.Locked;
+        inMenu = false;
+      }
+    }
+  }
+
+  private void ProcessMouseLook()
+  {
     controls.Player.Look.performed += context => look = context.ReadValue<Vector2>();
 
     look = look * mouseSensitivity * Time.deltaTime;
@@ -47,11 +70,5 @@ public class MouseLook : MonoBehaviour
     transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
 
     playerBody.Rotate(Vector3.up * look.x);
-
-
-    if (controls.Player.Menu.triggered)
-    {
-      Cursor.lockState = CursorLockMode.Confined;
-    }
   }
 }

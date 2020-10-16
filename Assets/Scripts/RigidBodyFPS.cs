@@ -81,6 +81,7 @@ public class RigidBodyFPS : MonoBehaviour
     if (toggleCrouch)
     {
       controls.Player.Crouch.performed += ctx => isCrouching = !isCrouching;
+      // controls.Player.Crouch.canceled += ctx => isCrouching = isCrouching;
     }
     else
     {
@@ -172,18 +173,6 @@ public class RigidBodyFPS : MonoBehaviour
 
   private void OnCollisionExit(Collision collision)
   {
-    Vector3 normal;
-    if (collision.contacts.Length > 0)
-    {
-      normal = collision.contacts[0].normal;
-
-      if (collision.gameObject.layer == 0)
-      {
-        if (normal.y < 0)
-        {
-        }
-      }
-    }
     isGrounded = false;
   }
 }
