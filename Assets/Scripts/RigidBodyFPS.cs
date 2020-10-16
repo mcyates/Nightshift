@@ -14,6 +14,7 @@ public class RigidBodyFPS : MonoBehaviour
 
   float standingHeight;
   float crouchedHeight;
+  float slidingHeight;
 
 
   public Vector2 movement = new Vector2();
@@ -21,11 +22,13 @@ public class RigidBodyFPS : MonoBehaviour
 
   [SerializeField] float moveSpeed = 7f;
   float speedBoost = 2f;
+  float slideSpeed = 10f;
 
   public bool isSprinting = false;
   public bool toggleCrouch = false;
+
+  bool isGrounded = true;
   bool isCrouching = false;
-  public bool isGrounded = true;
 
 
   #region Jumping
@@ -42,30 +45,24 @@ public class RigidBodyFPS : MonoBehaviour
       controls = new InputMaster();
     }
     controls.Enable();
-
-
-
   }
 
   private void OnDisable()
   {
     controls.Disable();
   }
-  // Start is called before the first frame update
+
   void Start()
   {
     player = GetComponent<Rigidbody>();
     collider = GetComponent<CapsuleCollider>();
 
     standingHeight = collider.height;
-    crouchedHeight = standingHeight / 2;
+    crouchedHeight = standingHeight / 2f;
+    slidingHeight = standingHeight / 2.5f;
+
     jumpsLeft = maxJumpsAllowed;
 
-  }
-
-  void Update()
-  {
-    // ProcessMovement();
   }
 
   void FixedUpdate()
@@ -113,10 +110,14 @@ public class RigidBodyFPS : MonoBehaviour
       moveSpeed = 7f;
     }
 
-    if (isCrouching)
+    if (isCrouching && !isSprinting)
     {
       Crouch();
     }
+    // else if (isCrouching && isSprinting)
+    // {
+    //   Sliding();
+    // }
     else
     {
       StandUp();
@@ -145,6 +146,13 @@ public class RigidBodyFPS : MonoBehaviour
     collider.height = standingHeight;
   }
 
+  private void Sliding()
+  {
+    // Crouch();
+    collider.height = slidingHeight;
+    player.AddForce(transform.forward * slideSpeed, ForceMode.Impulse);
+  }
+
   private void Jump()
   {
     float jumpFloat = Mathf.Sqrt(jumpHeight * -2f * -9.81f);
@@ -152,7 +160,6 @@ public class RigidBodyFPS : MonoBehaviour
     if (isGrounded == true)
     {
       player.AddForce(transform.up * jumpFloat, ForceMode.Impulse);
-      print(1);
     }
 
     // double jump reset jumpsleft in OnCollisionEnter
