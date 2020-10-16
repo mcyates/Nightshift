@@ -80,8 +80,20 @@ public class RigidBodyFPS : MonoBehaviour
     controls.Player.MovementHorizontal.performed += context => movement.y = context.ReadValue<float>();
     if (toggleCrouch)
     {
-      controls.Player.Crouch.performed += ctx => isCrouching = !isCrouching;
-      // controls.Player.Crouch.canceled += ctx => isCrouching = isCrouching;
+      if (controls.Player.Crouch.triggered)
+      {
+        // controls.Player.Crouch.performed += ctx => isCrouching = !isCrouching;
+        if (isCrouching == false)
+        {
+          isCrouching = true;
+          Crouch();
+        }
+        else
+        {
+          isCrouching = false;
+          StandUp();
+        }
+      }
     }
     else
     {
